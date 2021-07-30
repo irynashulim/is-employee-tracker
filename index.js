@@ -1,6 +1,7 @@
 const inquirer = require('inquirer');
 const db = require('./db/connection');
 const conTabl = require ('console.table');
+const { response } = require('express');
 
 //connect to database
 db.connect(err => {
@@ -10,7 +11,7 @@ db.connect(err => {
 
 //main prompt at the beggining of aplication
 const mainPrompt = () => {
-    return inquirer.prpmpt([
+    return inquirer.prompt([
         {
             type: 'list',
             name: 'action',
@@ -26,4 +27,25 @@ const mainPrompt = () => {
             ]
         }
     ])
+    .then (response => {
+        const choice = (response.prompt).tpString();
+        if (choice === "View all departments") {
+            viewAllDepartments();
+        } else if (choice === "View all roles") {
+            viewAllRoles ();
+        } else if (choice === "View all employees") {
+            viewAllEmployee();
+        } else if (choice === "Add a department") {
+            addDepartment();
+        } else if (choice === "Add a role") {
+            addRole();
+        } else if (choice === "Add an employee") {
+            addEmployee();
+        } else if (choice === "Update an employee role") {
+            updateEmployeeRole()
+        }
+    });
 };
+
+mainPrompt();
+
