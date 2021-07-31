@@ -7,14 +7,14 @@ db.connect(err => {
     if (err) throw err;
     console.log('Database connected.');
 });
-mainPrompt();
+
 //main prompt at the beggining of aplication
 const mainPrompt = () => {
     return inquirer.prompt([
         {
             type: 'list',
             name: 'action',
-            message:"Employee Tracker, please choose one og the following option",
+            message:"Employee Tracker, please choose one of the following options",
             choices: [
                 "View all departments",
                 "View all roles",
@@ -27,7 +27,7 @@ const mainPrompt = () => {
         }
     ])
     .then (response => {
-        const choice = (response.prompt).toString();
+        const choice = (response.choice).toString();
 
         if (choice === "View all departments") {
             viewAllDepartments();
@@ -47,3 +47,47 @@ const mainPrompt = () => {
     });
 };
 
+// "View all departments"
+const viewAllDepartments = () => {
+    const sql = `SELECT * FROM department;`
+    db.query(sql, (err, result) => {
+        if (err) throw err;
+        console.log('All Departments');
+        console.table(result);
+        mainPrompt();
+    });
+};
+
+//"View all roles"
+const viewAllRoles = () => {
+    const sql = `SELECT role.id, role.title, role.salary, department.name AS department
+                FROM role
+                LEFT JOIN department ON department.id = role.department_id;`
+
+    db.query(sql, (err, result) => {
+        if (err) throw err;
+        console.log('All Roles');
+        console.table(result);
+        mainPrompt();
+    });
+};
+// "View all employees"
+const viewAllEmployees = () => {
+    const sql = `SELECT employee.id, employee.first_name, employee.last_name,
+                role.title AS title,
+                department.name AS department, role.salary,
+                CONCAT(manager.first_name, ' ', manager.last_name) AS manager
+                FROM employee
+                LEFT JOIN (employee manager) ON manager.id = employee.manager_id
+                LEFT JOIN role on employee.role_id = role.id
+                LEFT JOIN department ON department.id = role.department_id;`
+
+    db.query(sql, (err, result) => {
+        if (err) throw err;
+        console.log('All Employees');
+        console.table(result);
+        mainPrompt();
+    });
+};
+
+mainPrompt();
