@@ -90,5 +90,202 @@ const viewAllEmployees = () => {
     });
 };
 
+// "Add a department"
+const addDepartment = () => {
+    return inquirer.prompt([
+        {
+            type: "input",
+            name: "addDepartment",
+            message: "Please enter name of new department. (Required)",
+            validate: departmentInput => {
+                if (departmentInput) {
+                    return true;
+                } else {
+                    console.log("Please enter new department name.");
+                    return false;
+                }
+            }
+        },
+    ])
+    .then(response => {
+        const sql = `INSERT INTO department (name) VALUES (?)`;
+        db.query(sql, response.addDepartment, (err, results) => {
+            if (err) throw err;
+            console.log('New department was added.')
+            mainPrompt();
+        })
+    });
+};
+
+// "Add a role"
+const addRole = () => {
+    const sql = `SELECT * FROM department;`
+    const departmentArr = [];
+    db.query(sql, (err, roleData) => {
+        if (err) throw error;
+        roleData.forEach((department) => departmentArr.push(department.name));
+    })
+    return inquirer.prompt([
+        {
+            type: 'input',
+            name: 'addRoleName',
+            message: "Please enter name for new role. (Required)",
+            validate: roleNameInput => {
+                if (roleNameInput) {
+                    return true;
+                } else {
+                    console.log("  Please enter new role name.");
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'input',
+            name: 'addRoleSalary',
+            message: "Please enter the salary for the new role.",
+            validate: roleSalaryInput => {
+                if (roleSalaryInput) {
+                    if(isNaN(roleSalaryInput)) {
+                        console.log("  Please enter a numbers only.")
+                        return false;
+                    } else {
+                        return true;
+                    }
+                } else {
+                    console.log("  Please enter new role salary.");
+                    return false;
+                }
+            } 
+        },
+        {
+            type: 'list',
+            name: 'addRoleDepartment',
+            message: "Please select the department for new role.",
+            choices: departmentArr  
+        }
+    ])
+    .then(response => {
+        const responseDept = response.addRoleDepartment;
+        let deptID;
+        const sqlID = `SELECT * FROM department;`
+        db.query(sqlID, (err, result) => {
+            if (err) throw err;
+            result.forEach((department) => {
+                if (responseDept === department.name) {
+                    deptID = department.id;
+                }
+            })
+            const sql = `INSERT INTO role (title, salary, department_id) 
+                        VALUES (?,?,?)`;
+            const params = [response.addRoleName, response.addRoleSalary, deptID];
+            db.query(sql, params, (err, results) => {
+                if (err) throw err;
+                console.log('New role was added');
+                mainPrompt();
+            })
+        })
+    });
+};
+
+//"Add an employee"
+const addEmployee = () => {
+    const sqlEmpRole = `SELECT * FROM role;`;
+    const roleArr = [];
+    db.query(sqlEmpRole, (err, roleData) => {
+        if (err) throw err;
+        roleData.forEach((role) => roleArr.push(role.title));
+    })
+    //FIRST NAME for new employee
+      return inquirer.prompt([
+          {
+              type: "input",
+              name: "addFirstName",
+              message: "Please enter new employee's first name. (Required)",
+              validate: firstNameInput => {
+                  if (firstNameInput) {
+                          return true;
+                   } else {
+                      console.log(" You must enter the first name of the new employee.")
+                      return false
+                  }
+              }
+          },
+    //LAST NAME for new employee
+          {
+              type: 'input',
+              name: 'addLastName',
+              message: "Please enter new employee's last name. (Required)",
+              validate: lastNameInput => {
+                  if (lastNameInput) {
+                          return true;
+                      }  else {
+                      console.log(" You must enter the last name of the new employee.")
+                      return false
+                  }
+              }
+          },
+    // ROLE for new employee
+          {
+              type: 'list',
+              name: 'roleChoice',
+              message: "Please select new employee's role.",
+              choices: roleArr
+          },
+      ])
+    // MANAGER for new epmloyee
+      .then(response => {
+          const managerArr = [];
+          const roleResponse = response.roleChoice;
+          let roleId;
+          let managerId;
+        
+          const sqlRole = `SELECT * FROM role;`
+          db.query(sqlRole, (err, result) => {
+              if (err) throw err;
+              result.forEach((role) => {
+                  if (roleResponse === role.title) {
+                      roleId = role.id
+                  }
+              })
+              sqlManager = `SELECT * FROM employee;`;
+              db.query(sqlManager, (err, managerData) => {
+                  if (err) throw err;
+                  const manager = managerData.map(({ first_name, last_name }) => 
+                  ({ name: first_name + ' ' + last_name}));
+                  return inquirer.prompt([
+                      {
+                          type: 'list',
+                          name: 'managerChoice',
+                          message: "Please select new employee's manager.",
+                          choices: manager
+                      }
+                  ])
+                  .then(managerResult => {
+                      const managerResponse = managerResult.managerChoice;
+
+                      firstName = managerResponse.split(' ')[0];
+                      lastName = managerResponse.split(' ').pop();
+                      managerData.forEach((employee) => {
+                          if ((firstName === employee.first_name) && (lastName === employee.last_name)) {
+                              managerId = employee.id;
+                          }
+                      })
+                      const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+                                   VALUES (?,?,?,?)`;
+                      const params = [response.addFirstName, response.addLastName, roleId, managerId];
+        
+                      // Query to add employee
+                      db.query(sql, params, (err, results) => {
+                          if (err) throw err;
+                          console.log("New employee was added")
+                          mainPrompt();
+                      })
+                  })
+              })
+          })   
+      });
+  };
+
+  
 
 mainPrompt();
