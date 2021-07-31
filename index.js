@@ -27,7 +27,8 @@ const mainPrompt = () => {
                 "Add a department",
                 "Add a role",
                 "Add an employee",
-                "Update an employee role"
+                "Update an employee role",
+                "View employees by department"
             ]
         }
     ])
@@ -46,7 +47,9 @@ const mainPrompt = () => {
             } else if (choice === "Add an employee") {
                 addEmployee();
             } else if (choice === "Update an employee role") {
-                updateEmployeeRole()
+                updateEmployeeRole();
+            } else if (choice === "View employees by department") {
+                viewEmployeesDepartment()
             }
         });
 };
@@ -130,7 +133,7 @@ const addDepartment = () => {
             const sql = `INSERT INTO department (name) VALUES (?)`;
             db.query(sql, response.addDepartment, (err, results) => {
                 if (err) throw err;
-                console.log(successfullyAdded ('New department was added.'));
+                console.log(successfullyAdded('New department was added.'));
                 mainPrompt();
             })
         });
@@ -359,6 +362,50 @@ const updateEmployeeRole = () => {
                     })
                 })
         })
+    });
+};
+
+// "View employees by department"
+const viewEmployeesDepartment = () => {
+    const departmentsArr = [];
+    const sqlDepartment = `SELECT * FROM department;`;
+    db.query(sqlDepartment, (err, response) => {
+        if (err) throw err;
+        response.forEach((department) => departmentsArr.push(department.name));
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "departmentData",
+                message: "Please choose department to see the employees?",
+                choices: departmentsArr
+            }
+        ])
+            .then(result => {
+                const roleArr = [];
+                let departmentID;
+                response.forEach((department) => {
+                    if (result.departmentData === department.name) {
+                        departmentID = department.id;
+                    }
+                })
+                const sqlRole = `SELECT * FROM role WHERE department_id = ?;`;
+                db.query(sqlRole, departmentID, (err, responseRole) => {
+                    if (err) throw err;
+                    responseRole.forEach((role) => roleArr.push(role.id));
+                    const sqlEmployee = `SELECT * FROM employee WHERE role_id = ? OR role_id = ?;`;
+                    db.query(sqlEmployee, roleArr, (err, responseEmployee) => {
+                        if (err) throw err;
+                        console.log(
+                            viewAll(
+                                figlet.textSync(
+                                    "Employees by Department", { font: 'small', horizontalLayout: 'full' })
+                                )
+                            );
+                        console.table(responseEmployee);
+                        mainPrompt();
+                    })
+                })
+            })
     });
 };
 
