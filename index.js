@@ -1,14 +1,13 @@
 const inquirer = require('inquirer');
 const db = require('./db/connection');
 const conTabl = require ('console.table');
-const { response } = require('express');
 
 //connect to database
 db.connect(err => {
     if (err) throw err;
     console.log('Database connected.');
 });
-
+mainPrompt();
 //main prompt at the beggining of aplication
 const mainPrompt = () => {
     return inquirer.prompt([
@@ -28,13 +27,14 @@ const mainPrompt = () => {
         }
     ])
     .then (response => {
-        const choice = (response.prompt).tpString();
+        const choice = (response.prompt).toString();
+
         if (choice === "View all departments") {
             viewAllDepartments();
         } else if (choice === "View all roles") {
             viewAllRoles ();
         } else if (choice === "View all employees") {
-            viewAllEmployee();
+            viewAllEmployees();
         } else if (choice === "Add a department") {
             addDepartment();
         } else if (choice === "Add a role") {
@@ -46,6 +46,4 @@ const mainPrompt = () => {
         }
     });
 };
-
-mainPrompt();
 
