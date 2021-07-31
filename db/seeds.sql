@@ -4,20 +4,20 @@ VALUES
 ('John', 'Smith', 2, 1),
 ('Alex', 'North', 2, 1),
 ('Alexandru', 'Naumov', 3, null),
-('Stephan', 'Virt', 4, 5),
-('Josh', 'Arts', 4, 5),
+('Stephan', 'Virt', 4, 4),
+('Josh', 'Arts', 4, 4),
 ('Olga', 'Gurita', 5, null),
 ('Jim', 'Volter', 6, 7),
 ('Oscar', 'Latty', 6, 7),
 ('Lia', 'Angelal', 7, null),
-('Bob', 'Stats', 8, 9),
-('Elsa', 'Hosk', 8, 9),
+('Bob', 'Stats', 8, 10),
+('Elsa', 'Hosk', 8, 10),
 ('Safiyya', 'Hasanova', 9, null),
-('Arthur', 'West', 10, 11),
-('Sam', 'Ornan', 10, 11),
+('Arthur', 'West', 10, 13),
+('Sam', 'Ornan', 10, 13),
 ('Victor', 'Lupascu', 11, null),
-('Taylor', 'Kit', 12, 13),
-('Terra', 'Nova', 12, 13);
+('Taylor', 'Kit', 12, 16),
+('Terra', 'Nova', 12, 16);
 
 
 INSERT INTO role (title, salary, department_id) 

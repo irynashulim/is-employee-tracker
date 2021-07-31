@@ -13,13 +13,13 @@ const mainPrompt = () => {
     return inquirer.prompt([
         {
             type: 'list',
-            name: 'action',
+            name: 'choice',
             message:"Employee Tracker, please choose one of the following options",
             choices: [
                 "View all departments",
                 "View all roles",
                 "View all employees",
-                "Add a department",
+                "Add a department", 
                 "Add a role",
                 "Add an employee",
                 "Update an employee role"
@@ -27,8 +27,8 @@ const mainPrompt = () => {
         }
     ])
     .then (response => {
+        console.log("This is response:", response)
         const choice = (response.choice).toString();
-
         if (choice === "View all departments") {
             viewAllDepartments();
         } else if (choice === "View all roles") {
@@ -89,5 +89,6 @@ const viewAllEmployees = () => {
         mainPrompt();
     });
 };
+
 
 mainPrompt();
