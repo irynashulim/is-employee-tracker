@@ -1,6 +1,11 @@
 const inquirer = require('inquirer');
 const db = require('./db/connection');
-const conTabl = require('console.table');
+const chalk = require("chalk");
+const viewAll = chalk.black.bgCyan;
+const successfullyAdded = chalk.black.bgGreen;
+const inputValidation = chalk.black.bgYellow;
+const figlet = require('figlet');
+
 
 //connect to database
 db.connect(err => {
@@ -14,7 +19,7 @@ const mainPrompt = () => {
         {
             type: 'list',
             name: 'choice',
-            message: "Employee Tracker, please choose one of the following options",
+            message: "Please choose one of the following options",
             choices: [
                 "View all departments",
                 "View all roles",
@@ -27,7 +32,6 @@ const mainPrompt = () => {
         }
     ])
         .then(response => {
-            console.log("This is response:", response)
             const choice = (response.choice).toString();
             if (choice === "View all departments") {
                 viewAllDepartments();
@@ -52,7 +56,12 @@ const viewAllDepartments = () => {
     const sql = `SELECT * FROM department;`
     db.query(sql, (err, result) => {
         if (err) throw err;
-        console.log('All Departments');
+        console.log(
+            (viewAll
+                (figlet.textSync('All Departments', { font: 'small', horizontalLayout: 'fitted' })
+                )
+            )
+        );
         console.table(result);
         mainPrompt();
     });
@@ -66,7 +75,12 @@ const viewAllRoles = () => {
 
     db.query(sql, (err, result) => {
         if (err) throw err;
-        console.log('All Roles');
+        console.log(
+            (viewAll
+                (figlet.textSync('All Roles', { font: 'small', horizontalLayout: 'fitted' })
+                )
+            )
+        );
         console.table(result);
         mainPrompt();
     });
@@ -84,7 +98,12 @@ const viewAllEmployees = () => {
 
     db.query(sql, (err, result) => {
         if (err) throw err;
-        console.log('All Employees');
+        console.log(
+            (viewAll
+                (figlet.textSync('All Employees', { font: 'small', horizontalLayout: 'full' })
+                )
+            )
+        );
         console.table(result);
         mainPrompt();
     });
@@ -101,7 +120,7 @@ const addDepartment = () => {
                 if (departmentInput) {
                     return true;
                 } else {
-                    console.log("Please enter new department name.");
+                    console.log(inputValidation("Please enter new department name."));
                     return false;
                 }
             }
@@ -111,7 +130,7 @@ const addDepartment = () => {
             const sql = `INSERT INTO department (name) VALUES (?)`;
             db.query(sql, response.addDepartment, (err, results) => {
                 if (err) throw err;
-                console.log('New department was added.')
+                console.log(successfullyAdded ('New department was added.'));
                 mainPrompt();
             })
         });
@@ -134,7 +153,7 @@ const addRole = () => {
                 if (roleNameInput) {
                     return true;
                 } else {
-                    console.log("  Please enter new role name.");
+                    console.log(inputValidation("Please enter new role name."));
                     return false;
                 }
             }
@@ -146,20 +165,20 @@ const addRole = () => {
             validate: roleSalaryInput => {
                 if (roleSalaryInput) {
                     if (isNaN(roleSalaryInput)) {
-                        console.log("  Please enter a numbers only.")
+                        console.log(inputValidation("Please enter a numbers only."));
                         return false;
                     } else {
                         return true;
                     }
                 } else {
-                    console.log("  Please enter new role salary.");
+                    console.log(inputValidation("Please enter new role salary."));
                     return false;
                 }
             }
         },
         {
-            type: 'list',
-            name: 'addRoleDepartment',
+            type: "list",
+            name: "addRoleDepartment",
             message: "Please select the department for new role.",
             choices: departmentArr
         }
@@ -180,7 +199,7 @@ const addRole = () => {
                 const params = [response.addRoleName, response.addRoleSalary, deptID];
                 db.query(sql, params, (err, results) => {
                     if (err) throw err;
-                    console.log('New role was added');
+                    console.log(successfullyAdded("New role was added"));
                     mainPrompt();
                 })
             })
@@ -205,7 +224,7 @@ const addEmployee = () => {
                 if (firstNameInput) {
                     return true;
                 } else {
-                    console.log(" You must enter the first name of the new employee.")
+                    console.log(inputValidation("You must enter the first name of the new employee."));
                     return false
                 }
             }
@@ -219,7 +238,7 @@ const addEmployee = () => {
                 if (lastNameInput) {
                     return true;
                 } else {
-                    console.log(" You must enter the last name of the new employee.")
+                    console.log(inputValidation("You must enter the last name of the new employee."));
                     return false
                 }
             }
@@ -254,8 +273,8 @@ const addEmployee = () => {
                         ({ name: first_name + ' ' + last_name }));
                     return inquirer.prompt([
                         {
-                            type: 'list',
-                            name: 'managerChoice',
+                            type: "list",
+                            name: "managerChoice",
                             message: "Please select new employee's manager.",
                             choices: manager
                         }
@@ -276,7 +295,7 @@ const addEmployee = () => {
                             const params = [response.addFirstName, response.addLastName, roleId, managerId];
                             db.query(sql, params, (err, results) => {
                                 if (err) throw err;
-                                console.log("New employee was added")
+                                console.log(successfullyAdded("New employee was added"));
                                 mainPrompt();
                             })
                         })
@@ -335,7 +354,7 @@ const updateEmployeeRole = () => {
 
                     db.query(sql, params, (err, results) => {
                         if (err) throw err;
-                        console.log("Employee role was updated");
+                        console.log(successfullyAdded("Employee role was updated"));
                         mainPrompt();
                     })
                 })
