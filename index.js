@@ -4,6 +4,7 @@ const chalk = require("chalk");
 const viewAll = chalk.black.bgCyan;
 const successfullyAdded = chalk.black.bgGreen;
 const inputValidation = chalk.black.bgYellow;
+const exit = chalk.black.bgBlue;
 const figlet = require('figlet');
 
 
@@ -28,7 +29,8 @@ const mainPrompt = () => {
                 "Add a role",
                 "Add an employee",
                 "Update an employee role",
-                "View employees by department"
+                "View employees by department",
+                "Exit"
             ]
         }
     ])
@@ -49,7 +51,10 @@ const mainPrompt = () => {
             } else if (choice === "Update an employee role") {
                 updateEmployeeRole();
             } else if (choice === "View employees by department") {
-                viewEmployeesDepartment()
+                viewEmployeesDepartment();
+            } else if (choice === "Exit") {
+                db.end();
+                console.log(exit("Thank you for using employee tracker"));
             }
         });
 };
